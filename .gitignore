@@ -1,2 +1,4 @@
 /database
 .env
+data/*
+.vscode/settings.json

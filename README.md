@@ -23,9 +23,9 @@ The database will be created in subdirectory named `database`.
 Since this might grow large, you should clone this repository onto a drive with sufficient capacity.
 
 ### Initial Setup
-Use the `gen-env.sh` script to generate a `.env` file.  
-This will copy env.example and replace the password placeholders with a generated password.  
-Should you need a to set a specific password, just copy the file and replace the palceholder yourself.
+Use the `gen-env.sh` script to generate a `.env` file with secure passwords.  
+This script will copy `env.example` and replace the password placeholders with generated passwords.  
+Alternatively, you can manually copy `env.example` to `.env` and edit the variables yourself to set specific passwords or other configurations.
 
 You can then customize the `.env` file to set memory settings or a custom default query.  
 Be aware that the settings in the `.env` file only get applied during the first start of the container. This is a limitation of the virtuoso container.
