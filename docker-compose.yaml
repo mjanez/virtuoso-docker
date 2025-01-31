@@ -14,6 +14,8 @@ services:
       - VIRT_PARAMETERS_MAXDIRTYBUFFERS=${VIRT_PARAMETERS_MAXDIRTYBUFFERS:-6000}
       # Set default query
       - VIRT_SPARQL_DEFAULTQUERY=${VIRT_SPARQL_DEFAULTQUERY}
+      # Set default graph
+      - VIRT_DEFAULT_GRAPH=${VIRT_DEFAULT_GRAPH}
     ports:
       - ${VIRTUOSO_PORT:-8890}:8890
     volumes:
@@ -22,6 +24,6 @@ services:
       # Used for loading data
       - ./data:/data:ro
       # Mount loading script
-      - ./load.sql:/initdb.d/load.sql:ro
+      - ./virtuoso/load.sql:/initdb.d/load.sql:ro
     labels:
       - com.centurylinklabs.watchtower.enable=true

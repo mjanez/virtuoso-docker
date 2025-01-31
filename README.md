@@ -1,66 +1,97 @@
 # Virtuoso Docker Compose
 
-This is a small setup to run a virtuoso instance in docker container and load a dataset into it.  
-It is intended to be useful for long-term as well as ad-hoc deployments of pre-existing datasets.  
-If you want to use virtuoso to compose a dataset, you can still use this setup as a starting point (there is nothing stopping you from modifying the loaded data).
+This is a small setup to run a Virtuoso instance in a Docker container and load a dataset into it.  
+It is intended to be useful for both long-term and ad-hoc deployments of pre-existing datasets.  
+If you want to use Virtuoso to compose a dataset, you can still use this setup as a starting point (there is nothing stopping you from modifying the loaded data).
 
 ## Quick start
-```
-git clone https://github.com/dice-group/virtuoso-docker-compose.git
-cd virtuoso-docker-compose
+```bash
+# Clone the repository
+git clone https://github.com/mjanez/virtuoso-docker.git
+cd virtuoso-docker
+
+# Option 1: Generate .env with random passwords
 ./gen-env.sh
+
+# Option 2: Manually create .env
+copy env.example .env
+vi .env    # Opens .env to edit
 ```
-Place dataset files into `data` directory.  
+
+Place dataset files into data directory.  
 Optionally edit `.env` to set RAM and port settings.
-```
+```bash
 docker-compose up -d
 ```
+
+>[!TIP]
+> If you're using Windows PowerShell, use `Copy-Item` instead of `copy`:
+> ```powershell
+> Copy-Item env.example .env
+> ```
+
+Once running, by default, you can access:
+- SPARQL endpoint at: http://localhost:8890/sparql
+- Virtuoso Conductor at: http://localhost:8890/conductor
 
 ## Usage
 
 ### Database location
-The database will be created in subdirectory named `database`.  
+The database will be created in subdirectory named database.  
 Since this might grow large, you should clone this repository onto a drive with sufficient capacity.
 
 ### Initial Setup
-Use the `gen-env.sh` script to generate a `.env` file with secure passwords.  
-This script will copy `env.example` and replace the password placeholders with generated passwords.  
-Alternatively, you can manually copy `env.example` to `.env` and edit the variables yourself to set specific passwords or other configurations.
+Use the `gen-env.sh` script to generate a `.env` file with secure passwords. This script will copy `env.example` and replace the password placeholders with generated passwords. 
 
-You can then customize the `.env` file to set memory settings or a custom default query.  
-Be aware that the settings in the `.env` file only get applied during the first start of the container. This is a limitation of the virtuoso container.
+You can then customize the .env file to:
+- Set memory settings based on your available RAM
+- Configure a custom default SPARQL query
+- Modify the port settings if needed
 
-### Preparing the dataset
-Place the dataset you want loaded into the `data` directory.  
-Currently `.nt`, `.ttl`, `.nq`, `.owl`, `.rdf`, `.trig`, `.xml` files, as well as their `.gz` and `.bz2` compressed variants are supported.  
-(These are just glob matches in load.sql, if you need a different format you can just add it there. Also open an issue / merge request to add it here)
+>[!NOTE]
+> Be aware that the settings in the `.env` file only get applied during the first start of the container. This is a limitation of the Virtuoso container.
 
-### Starting / stopping the container
-Now you can use the usual `docker-compose` (or `docker compose` in newer versions) commands to manage the container.  
-Use `docker-compose up -d` to start the container and `docker-compose down` to stop it.  
-You can also use `docker-compose up -d --pull` to update the container to a new image version (if it exists).
+### SPARQL Queries
+Check the [`SPARQL.md`](SPARQL.md) file for a collection of useful SPARQL queries to explore and analyze DCAT catalogs. These queries are tested and optimized for:
+- datos.gob.es SPARQL endpoint: https://datos.gob.es/es/sparql
+- European Data Portal SPARQL endpoint: https://data.europa.eu/data/sparql
+
+### Preparing the catalog
+Place the catalogs/datasets you want loaded into the data directory.  
+Supported file formats:
+- `.nt`, `.ttl`, `.nq`, `.owl`, `.rdf`, `.trig`, `.xml`
+- Compressed variants: `.gz` and `.bz2`
+
+>[!TIP]
+> These are just glob matches in `load.sql`. If you need a different format, you can add it there or open an issue/merge request.
+
+### Managing the container
+Use standard Docker Compose commands to manage the container:
+```bash
+# Start container
+docker-compose up -d
+
+# Stop container
+docker-compose down
+
+# Update container image
+docker-compose up -d --pull
+```
 
 ### Resetting the database
-If you ever need to reset the database, simply stop the container and remove the `database` directory.  
-For example using
-```
-sudo docker-compose down
-sudo rm -rf ./database
-sudo docker-compose up -d
+To reset the database:
+```bash
+# Stop container and remove database
+docker-compose down
+rm -rf ./database
+docker-compose up -d
 ```
 
 ## License
-Copyright 2023 DICE Group
+This work is derived from the original [Virtuoso Docker Compose](https://github.com/dice-group/virtuoso-docker-compose/blob/main/LICENSE) by DICE Group (Copyright 2023), licensed under Apache License 2.0.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+This derivative work is licensed under [Creative Commons Attribution 4.0 International License](http://creativecommons.org/licenses/by/4.0/).
 
-    http://www.apache.org/licenses/LICENSE-2.0
+You must give appropriate credit to DICE Group, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
+![CC BY 4.0](https://i.creativecommons.org/l/by/4.0/88x31.png)
