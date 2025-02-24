@@ -2,8 +2,8 @@
 
 This document contains a collection of SPARQL queries designed to explore and analyze DCAT (Data Catalog Vocabulary) catalogs. These queries are specifically tested and optimized for two main SPARQL endpoints:
 
-- datos.gob.es SPARQL endpoint: https://datos.gob.es/es/sparql
-- European Data Portal SPARQL endpoint: https://data.europa.eu/data/sparql
+- datos.gob.es SPARQL endpoint: [`https://datos.gob.es/virtuoso/sparql`](https://datos.gob.es/virtuoso/sparql)
+- European Data Portal SPARQL endpoint: [`https://data.europa.eu/sparql`](https://data.europa.eu/sparql)
 
 The queries allow you to extract information about datasets, distributions, data services, and other components of DCAT catalogs.
 
@@ -45,12 +45,18 @@ ORDER BY DESC(?modified)
 This query efficiently obtains basic statistics for a specific catalog using subqueries:
 
 Catalog URIs of Spain:
-* EDP: `http://data.europa.eu/88u/catalogue/datos-gob-es`
-* datos.gob.es: `https://datos.gob.es`
+EDP: 
+  * datos.gob.es: [`http://data.europa.eu/88u/catalogue/datos-gob-es`](http://data.europa.eu/88u/catalogue/datos-gob-es)
+  * IDEE: [`http://data.europa.eu/88u/catalogue/idee`](http://data.europa.eu/88u/catalogue/idee)
+  * CODSI: [`http://data.europa.eu/88u/catalogue/codsi`](http://data.europa.eu/88u/catalogue/codsi)
+datos.gob.es:
+* datos.gob.es: [`https://datos.gob.es`](https://datos.gob.es)
 
 >[!NOTE]
 > Replace the catalog URI `<http://data.europa.eu/88u/catalogue/datos-gob-es>` with your desired catalog URI.
 
+
+###### All catalogs/datasets/distributions/dataservices
 ```sparql
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
 PREFIX dct: <http://purl.org/dc/terms/>
@@ -105,6 +111,9 @@ WHERE {
   }
 }
 ```
+
+
+###### All catalogs/datasets/distributions/dataservices by publisher
 
 #### Datasets Query
 
@@ -189,7 +198,7 @@ This query first identifies catalogs containing HVD resources and then lists the
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
 PREFIX dct: <http://purl.org/dc/terms/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX r5r: <http://data.europa.eu/r5r/>
+PREFIX dcatap: <http://data.europa.eu/r5r/>
 
 SELECT DISTINCT ?catalog ?catalogTitle ?dataset ?datasetTitle WHERE {
   # Find catalogs with HVD datasets
@@ -198,7 +207,7 @@ SELECT DISTINCT ?catalog ?catalogTitle ?dataset ?datasetTitle WHERE {
           dcat:dataset ?dataset .
           
   # Get datasets with HVD legislation
-  ?dataset r5r:applicableLegislation <http://data.europa.eu/eli/reg_impl/2023/138/oj> ;
+  ?dataset dcatap:applicableLegislation <http://data.europa.eu/eli/reg_impl/2023/138/oj> ;
           dct:title ?datasetTitle .
 }
 ORDER BY ?catalogTitle ?datasetTitle
@@ -212,7 +221,7 @@ This query lists HVD datasets, their distributions and services in a catalog:
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
 PREFIX dct: <http://purl.org/dc/terms/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX r5r: <http://data.europa.eu/r5r/>
+PREFIX dcatap: <http://data.europa.eu/r5r/>
 
 SELECT DISTINCT ?dataset (SAMPLE(?title) as ?datasetTitle) ?distribution ?service 
 WHERE {
@@ -221,17 +230,17 @@ WHERE {
           dcat:dataset ?dataset .
           
   # Get dataset title and HVD legislation
-  ?dataset r5r:applicableLegislation <http://data.europa.eu/eli/reg_impl/2023/138/oj> ;
+  ?dataset dcatap:applicableLegislation <http://data.europa.eu/eli/reg_impl/2023/138/oj> ;
           dct:title ?title .
           
   # Optionally get related distributions and services
   OPTIONAL {
     ?dataset dcat:distribution ?distribution .
-    ?distribution r5r:applicableLegislation <http://data.europa.eu/eli/reg_impl/2023/138/oj> .
+    ?distribution dcatap:applicableLegislation <http://data.europa.eu/eli/reg_impl/2023/138/oj> .
     
     OPTIONAL {
       ?distribution dcat:accessService ?service .
-      ?service r5r:applicableLegislation <http://data.europa.eu/eli/reg_impl/2023/138/oj> .
+      ?service dcatap:applicableLegislation <http://data.europa.eu/eli/reg_impl/2023/138/oj> .
     }
   }
 }
@@ -247,7 +256,7 @@ This query counts the number of HVD datasets, distributions and services:
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
 PREFIX dct: <http://purl.org/dc/terms/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX r5r: <http://data.europa.eu/r5r/>
+PREFIX dcatap: <http://data.europa.eu/r5r/>
 
 SELECT 
   (COUNT(DISTINCT ?dataset) as ?hvdDatasets)
@@ -256,24 +265,24 @@ SELECT
 WHERE {
   # HVD Datasets
   <http://data.europa.eu/88u/catalogue/datos-gob-es> dcat:dataset ?dataset .
-  ?dataset r5r:applicableLegislation <http://data.europa.eu/eli/reg_impl/2023/138/oj> .
+  ?dataset dcatap:applicableLegislation <http://data.europa.eu/eli/reg_impl/2023/138/oj> .
   
   OPTIONAL {
     # HVD Distributions
     ?dataset dcat:distribution ?distribution .
-    ?distribution r5r:applicableLegislation <http://data.europa.eu/eli/reg_impl/2023/138/oj> .
+    ?distribution dcatap:applicableLegislation <http://data.europa.eu/eli/reg_impl/2023/138/oj> .
   }
   
   OPTIONAL {
     # HVD Services (both direct and through distributions)
     {
       ?distribution dcat:accessService ?service .
-      ?service r5r:applicableLegislation <http://data.europa.eu/eli/reg_impl/2023/138/oj> .
+      ?service dcatap:applicableLegislation <http://data.europa.eu/eli/reg_impl/2023/138/oj> .
     }
     UNION
     {
       ?service dcat:servesDataset ?dataset .
-      ?service r5r:applicableLegislation <http://data.europa.eu/eli/reg_impl/2023/138/oj> .
+      ?service dcatap:applicableLegislation <http://data.europa.eu/eli/reg_impl/2023/138/oj> .
     }
   }
 }
